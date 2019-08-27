@@ -52,6 +52,18 @@ Ou se o composer estiver instalado apenas na pasta do projeto:
 php composer.phar install
 ```
 
+### Framework Laravel
+Para acabar de configurar o Framework Laravel é necessário apenas mais alguns comandos:
+```shell script
+php -r "file_exists('.env') || copy('.env.example', '.env');"
+php artisan key:generate --ansi
+```
+
+O primeiro comando irá copiar e renomear o arquivo `.env.example` para `.env` caso não haja um na raiz do projeto ainda.
+O segundo comando irá gerar uma chave única de criptografia para a nova instância.
+
+Agora tudo que falta é completar as configurações do arquivo `.env` com as credenciais de acesso à banco de dados.
+
 
 [Composer]: https://getcomposer.org
 [Docker]: https://www.docker.com
