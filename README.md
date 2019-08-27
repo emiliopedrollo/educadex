@@ -39,7 +39,7 @@ Assim como tudo projeto hospedado no **GitHub** ou em qualquer outro serviço ve
 darmos inicio ao desenvolvimento é necessário realizar a clonagem do repositório em nossa máquina local, para isso se 
 faz necessário termos o software _[git]_ instalado localmente e executar o seguinte comando:
 ```shell script
-git clone git@github.com:emiliopedrollo/educadex.git && cd educadex
+git clone https://github.com/emiliopedrollo/educadex.git && cd educadex
 ```
 Será criado uma pasta dentro do diretório atual chamada **educadex**. Os próximos comandos deste tutorial deverão ser
 executados de dentro desta pasta.
