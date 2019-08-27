@@ -11,7 +11,6 @@ utilizando um container Docker facilitando a seleção e instalação de boa par
 necessárias.
 
 ### Softwares necessários
-
 1. [PHP]: Em ambientes Unix geralmente ja vem com o sistema ou está disponível no gerenciador de pacotes do mesmo,
   verifique utilizando o comando `php -v` se você o tem instalado. No Windows geralmente é mais comum que seja 
   instalado uma versão otimizada para desenvolvimento como o [XAMPP] ou similares. **Para este projeto é necessário 
@@ -21,7 +20,6 @@ necessárias.
   Deve ser instalado globalmente ou dentro do diretório do projeto. Não confundir com Docker Compose.
 
 ### Softwares opcionais
-
 1. [node.js]: Utilizado para compilação dos componentes web desenvolvidos em Vue.js e não é necessário para 
   execução.
 
