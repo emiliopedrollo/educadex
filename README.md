@@ -3,6 +3,8 @@ Educadex
 
 Indexador educacional
 
+Live demo: http://educadex.emilio.pedrollo.nom.br
+
 Dependências
 ------------
 Para instalar uma instância do **Educadex** é necessário que alguns softwares já estejam pre-instalados no sistema.
