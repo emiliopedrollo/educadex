@@ -48,16 +48,16 @@
                 font-size: 84px;
             }
 
+            .title > label::after {
+                content: 'alpha';
+                font-size: .3em;
+                margin-left: -.6em;
+            }
+
             .search > form > input#search {
                 width: 100%;
                 padding: .5em;
                 margin-left: -.5em;
-            }
-
-            .search > label::after {
-                content: 'alpha';
-                font-size: .3em;
-                margin-left: -.6em;
             }
 
             .search > form > input#submit {
