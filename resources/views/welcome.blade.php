@@ -54,6 +54,12 @@
                 margin-left: -.5em;
             }
 
+            .search > label::after {
+                content: 'alpha';
+                font-size: .3em;
+                margin-left: -.6em;
+            }
+
             .search > form > input#submit {
                 margin-top: .3em;
             }
