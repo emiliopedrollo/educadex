@@ -1,0 +1,9 @@
+.editorconfig
+.gitattributes
+.gitignore
+.styleci.yml
+docker-compose.yml
+LICENSE
+README.md
+docker
+docs
