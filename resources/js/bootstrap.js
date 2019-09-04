@@ -53,3 +53,6 @@ if (token) {
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     encrypted: true
 // });
+
+window.i18n = JSON.parse(document.getElementById('i18n').innerHTML);
+window.trans = (string) => _.get(window.i18n, string);
