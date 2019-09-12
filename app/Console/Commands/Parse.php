@@ -143,8 +143,8 @@ class Parse extends Command
                 /** @var UF $uf */
                 $uf = $uf ?? UF::query()
                     ->where(DB::raw('lower(unaccent(no_estado))'), '=', $normalized_location)
+                    ->orWhere(DB::raw('lower(no_uf)'),'=',$normalized_location)
                     ->first();
-
             }
 
             foreach ($locations as $location) {
