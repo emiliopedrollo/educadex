@@ -182,7 +182,24 @@ class Parse extends Command
             if (strtolower($token->getLemma()) == 'qual') {
                 if ($token->getPartOfSpeech()->getNumber() == Number::PLURAL) {
                     $response_type = 'Lista';
-                    $answer = join(PHP_EOL,$query->get()->map->no_entidade->toArray());
+                    $limit = 100;
+                    $entities = $query
+                        ->select(['escolas.*', DB::raw('count(*) OVER (PARTITION BY NULL) AS total')])
+                        ->limit($limit)
+                        ->get();
+
+                    if ($entities->isEmpty()) {
+                        $answer = "Sua pesquisa não retornou resultados.";
+                    } else {
+                        $total = $entities->first()->total;
+                        if ($total > $limit) {
+                            $this->warn(sprintf(
+                                "Sua pesquisa teve muitos hits. Mostrando apenas os %d primeiros de %d",
+                                $limit, $total
+                            ));
+                        }
+                        $answer = join(PHP_EOL, $entities->map->no_entidade->toArray());
+                    }
                 } else {
                     $response_type = 'Node de entidade';
                     $answer = $query->first()->no_entidade;
