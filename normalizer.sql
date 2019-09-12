@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
 ALTER TABLE escolas
     ALTER COLUMN nu_ano_censo TYPE INT USING nu_ano_censo::INTEGER,
     ALTER COLUMN nu_ano_censo SET NOT NULL;
