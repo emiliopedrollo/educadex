@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Escola;
 use App\Municipio;
 use App\UF;
+use Cache;
 use DB;
 use Google\ApiCore\ApiException;
 use Google\ApiCore\ValidationException;
@@ -33,6 +34,7 @@ use Google\Cloud\Language\V1\Token;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 
 class Parse extends Command
 {
@@ -41,7 +43,7 @@ class Parse extends Command
      *
      * @var string
      */
-    protected $signature = 'parse {sentence} {--A|with-analysis}';
+    protected $signature = 'pergunta {sentence} {--A|with-analysis}';
 
     /**
      * The console command description.
@@ -69,19 +71,24 @@ class Parse extends Command
      */
     public function handle()
     {
+        $sentence = $this->argument('sentence');
 
-        $languageServiceClient = new LanguageServiceClient(['projectId' => env('GOOGLE_PROJECT_ID')]);
+        /** @var Carbon $next_week */
+        $next_week = now()->addWeek();
 
-        $document = (new Document())
-            ->setContent($this->argument('sentence'))
-            ->setType(Type::PLAIN_TEXT);
-        // Set Features to extract ['entities', 'syntax', 'sentiment']
-        $features = (new Features())
-            ->setExtractEntities(true)
-            ->setExtractSyntax(true);
+        $response = unserialize(Cache::remember("sentence|$sentence",$next_week, function() use ($sentence) {
+            $languageServiceClient = new LanguageServiceClient(['projectId' => env('GOOGLE_PROJECT_ID')]);
 
-        // Collect annotations
-        $response = $languageServiceClient->annotateText($document, $features);
+            $document = (new Document())
+                ->setContent($sentence)
+                ->setType(Type::PLAIN_TEXT);
+
+            $features = (new Features())
+                ->setExtractEntities(true)
+                ->setExtractSyntax(true);
+
+            return serialize($languageServiceClient->annotateText($document, $features));
+        }));
 
         if ($this->option('with-analysis')) {
             $analysis = $this->analyze_all($response);
@@ -167,6 +174,14 @@ class Parse extends Command
             } else if ($uf) {
                 $query->where('co_uf','=',$uf->co_uf);
             }
+        }
+
+        $sentence_normalized = preg_replace('/\s+/',' ',
+            mb_strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sentence))
+        );
+
+        if (strstr($sentence_normalized,"ensino medio") !== FALSE) {
+            $query->whereRaw("en_tipo_ensino @> ARRAY['Medio'::tipo_ensino]");
         }
 
         $tokens = $response->getTokens();
