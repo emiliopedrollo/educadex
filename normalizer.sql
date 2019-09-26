@@ -18,6 +18,36 @@ ALTER TABLE escolas
     ALTER COLUMN co_uf SET NOT NULL;
 
 ALTER TABLE escolas
+    ALTER COLUMN in_esp_exclusiva_prof TYPE BOOLEAN USING in_esp_exclusiva_prof::INT::BOOLEAN,
+    ALTER COLUMN in_comum_prof TYPE BOOLEAN USING in_comum_prof::INT::BOOLEAN,
+    ALTER COLUMN in_esp_exclusiva_eja_prof TYPE BOOLEAN USING in_esp_exclusiva_eja_prof::INT::BOOLEAN,
+    ALTER COLUMN in_profissionalizante TYPE BOOLEAN USING in_profissionalizante::INT::BOOLEAN,
+    ALTER COLUMN in_comum_eja_prof TYPE BOOLEAN USING in_comum_eja_prof::INT::BOOLEAN,
+    ALTER COLUMN in_eja TYPE BOOLEAN USING in_eja::INT::BOOLEAN,
+    ALTER COLUMN in_comum_eja_fund TYPE BOOLEAN USING in_comum_eja_fund::INT::BOOLEAN,
+    ALTER COLUMN in_comum_eja_medio TYPE BOOLEAN USING in_comum_eja_medio::INT::BOOLEAN,
+    ALTER COLUMN in_esp_exclusiva_eja_fund TYPE BOOLEAN USING in_esp_exclusiva_eja_fund::INT::BOOLEAN,
+    ALTER COLUMN in_esp_exclusiva_eja_medio TYPE BOOLEAN USING in_esp_exclusiva_eja_medio::INT::BOOLEAN,
+    ALTER COLUMN in_comum_fund_ai TYPE BOOLEAN USING in_comum_fund_ai::INT::BOOLEAN,
+    ALTER COLUMN in_comum_fund_af TYPE BOOLEAN USING in_comum_fund_af::INT::BOOLEAN,
+    ALTER COLUMN in_esp_exclusiva_fund_ai TYPE BOOLEAN USING in_esp_exclusiva_fund_ai::INT::BOOLEAN,
+    ALTER COLUMN in_esp_exclusiva_fund_af TYPE BOOLEAN USING in_esp_exclusiva_fund_af::INT::BOOLEAN,
+    ALTER COLUMN in_comum_medio_medio TYPE BOOLEAN USING in_comum_medio_medio::INT::BOOLEAN,
+    ALTER COLUMN in_comum_medio_integrado TYPE BOOLEAN USING in_comum_medio_integrado::INT::BOOLEAN,
+    ALTER COLUMN in_comum_medio_normal TYPE BOOLEAN USING in_comum_medio_normal::INT::BOOLEAN,
+    ALTER COLUMN in_esp_exclusiva_medio_medio TYPE BOOLEAN USING in_esp_exclusiva_medio_medio::INT::BOOLEAN,
+    ALTER COLUMN in_esp_exclusiva_medio_integr TYPE BOOLEAN USING in_esp_exclusiva_medio_integr::INT::BOOLEAN,
+    ALTER COLUMN in_esp_exclusiva_medio_normal TYPE BOOLEAN USING in_esp_exclusiva_medio_normal::INT::BOOLEAN,
+    ALTER COLUMN in_comum_creche TYPE BOOLEAN USING in_comum_creche::INT::BOOLEAN,
+    ALTER COLUMN in_esp_exclusiva_creche TYPE BOOLEAN USING in_esp_exclusiva_creche::INT::BOOLEAN,
+    ALTER COLUMN in_comum_pre TYPE BOOLEAN USING in_comum_pre::INT::BOOLEAN,
+    ALTER COLUMN in_esp_exclusiva_pre TYPE BOOLEAN USING in_esp_exclusiva_pre::INT::BOOLEAN,
+    ALTER COLUMN in_especial_exclusiva TYPE BOOLEAN USING in_especial_exclusiva::INT::BOOLEAN,
+    ALTER COLUMN in_mediacao_presencial TYPE BOOLEAN USING in_mediacao_presencial::INT::BOOLEAN,
+    ALTER COLUMN in_mediacao_semipresencial TYPE BOOLEAN USING in_mediacao_semipresencial::INT::BOOLEAN,
+    ALTER COLUMN in_mediacao_ead TYPE BOOLEAN USING in_mediacao_ead::INT::BOOLEAN;
+
+ALTER TABLE escolas
     ADD PRIMARY KEY (co_entidade);
 
 CREATE TABLE IF NOT EXISTS uf (
@@ -45,54 +75,9 @@ CREATE INDEX escolas_co_municipio_index ON escolas(co_municipio);
 
 CREATE INDEX escolas_co_ud_index ON escolas(co_uf);
 
-ALTER TABLE escolas DROP COLUMN IF EXISTS en_tipo_ensino;
-DROP TYPE IF EXISTS tipo_ensino;
-
-CREATE TYPE tipo_ensino AS ENUM (
-    'Profissionalizante','EJA','Fundamental','Medio','Creche','Pre','Integrado','Anos iniciais','Anos finais',
-    'Especial','Comum','Presencial','Semipresencial','EAD');
-
-
-select '010'::bit(3);
-
-DROP FUNCTION tipo_escola_to_bit (tipo_ensino[]);
-CREATE OR REPLACE FUNCTION tipo_escola_to_bit (tipo_ensino[]) RETURNS bit(1)[] AS $$ BEGIN
-    return (ARRAY[
-            CASE WHEN ($1 @> ARRAY ['Profissionalizante'::tipo_ensino]) THEN 1 ELSE 0 END,
-            CASE WHEN ($1 @> ARRAY ['EJA'::tipo_ensino]) THEN 1 ELSE 0 END,
-            CASE WHEN ($1 @> ARRAY ['Fundamental'::tipo_ensino]) THEN 1 ELSE 0 END,
-            CASE WHEN ($1 @> ARRAY ['Medio'::tipo_ensino]) THEN 1 ELSE 0 END,
-            CASE WHEN ($1 @> ARRAY ['Creche'::tipo_ensino]) THEN 1 ELSE 0 END,
-            CASE WHEN ($1 @> ARRAY ['Pre'::tipo_ensino]) THEN 1 ELSE 0 END,
-            CASE WHEN ($1 @> ARRAY ['Integrado'::tipo_ensino]) THEN 1 ELSE 0 END,
-            CASE WHEN ($1 @> ARRAY ['Anos iniciais'::tipo_ensino]) THEN 1 ELSE 0 END,
-            CASE WHEN ($1 @> ARRAY ['Anos finais'::tipo_ensino]) THEN 1 ELSE 0 END,
-            CASE WHEN ($1 @> ARRAY ['Especial'::tipo_ensino]) THEN 1 ELSE 0 END,
-            CASE WHEN ($1 @> ARRAY ['Comum'::tipo_ensino]) THEN 1 ELSE 0 END,
-            CASE WHEN ($1 @> ARRAY ['Presencial'::tipo_ensino]) THEN 1 ELSE 0 END,
-            CASE WHEN ($1 @> ARRAY ['Semipresencial'::tipo_ensino]) THEN 1 ELSE 0 END,
-            CASE WHEN ($1 @> ARRAY ['EAD'::tipo_ensino]) THEN 1 ELSE 0 END
-        ])::BIT(1)[];
-END; $$ IMMUTABLE LANGUAGE plpgsql;
-
-SELECT (tipo_escola_to_bit(en_tipo_ensino)) , en_tipo_ensino FROM escolas limit 1;
-
-CREATE INDEX en_tipo_ensino_gin_index ON escolas USING GIN (tipo_escola_to_bit(en_tipo_ensino) _bit_ops);
-
 ALTER TABLE escolas ADD COLUMN en_tipo_ensino tipo_ensino[] DEFAULT NULL::tipo_ensino[];
 
 select * FROM escolas ORDER by en_tipo_ensino NULLS LAST limit 500;
-
-UPDATE escolas SET en_tipo_ensino = array_append(en_tipo_ensino,'Profissionalizante'::tipo_ensino)
-WHERE in_esp_exclusiva_prof::INT::BOOLEAN OR in_comum_prof::INT::BOOLEAN
-OR in_esp_exclusiva_eja_prof::INT::BOOLEAN OR in_profissionalizante::INT::BOOLEAN
-OR in_comum_eja_prof::INT::BOOLEAN;
-
-UPDATE escolas SET en_tipo_ensino = array_append(en_tipo_ensino,'EJA'::tipo_ensino)
-WHERE in_eja::INT::BOOLEAN OR in_comum_eja_fund::INT::BOOLEAN
-   OR in_comum_eja_medio::INT::BOOLEAN OR in_comum_eja_prof::INT::BOOLEAN
-   OR in_esp_exclusiva_eja_fund::INT::BOOLEAN OR in_esp_exclusiva_eja_medio::INT::BOOLEAN
-   OR in_esp_exclusiva_eja_prof::INT::BOOLEAN;
 
 UPDATE escolas SET en_tipo_ensino = array_append(en_tipo_ensino,'Fundamental'::tipo_ensino)
 WHERE in_comum_fund_ai::INT::BOOLEAN OR in_comum_fund_af::INT::BOOLEAN
@@ -128,7 +113,6 @@ WHERE in_especial_exclusiva::INT::BOOLEAN OR in_esp_exclusiva_creche::INT::BOOLE
    OR in_esp_exclusiva_eja_fund::INT::BOOLEAN OR in_esp_exclusiva_eja_medio::INT::BOOLEAN
    OR in_esp_exclusiva_eja_prof::INT::BOOLEAN OR in_esp_exclusiva_prof::INT::BOOLEAN;
 
-
 UPDATE escolas SET en_tipo_ensino = array_append(en_tipo_ensino,'Comum'::tipo_ensino)
 WHERE in_comum_creche::INT::BOOLEAN OR in_comum_pre::INT::BOOLEAN
    OR in_comum_fund_ai::INT::BOOLEAN OR in_comum_fund_af::INT::BOOLEAN
@@ -136,7 +120,6 @@ WHERE in_comum_creche::INT::BOOLEAN OR in_comum_pre::INT::BOOLEAN
    OR in_comum_medio_normal::INT::BOOLEAN OR in_comum_eja_fund::INT::BOOLEAN
    OR in_comum_eja_medio::INT::BOOLEAN OR in_comum_eja_prof::INT::BOOLEAN
    OR in_comum_prof::INT::BOOLEAN;
-
 
 UPDATE escolas SET en_tipo_ensino = array_append(en_tipo_ensino,'Presencial'::tipo_ensino)
 WHERE in_mediacao_presencial::INT::BOOLEAN;

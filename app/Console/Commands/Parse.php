@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use App\Escola;
 use App\Municipio;
+use App\Tree\Answer;
+use App\Tree\DecisionTree;
 use App\UF;
 use Cache;
 use DB;
@@ -43,7 +45,7 @@ class Parse extends Command
      *
      * @var string
      */
-    protected $signature = 'pergunta {sentence} {--A|with-analysis}';
+    protected $signature = 'pergunta {sentence} {--A|with-analysis} {--Q|show-query}';
 
     /**
      * The console command description.
@@ -73,160 +75,51 @@ class Parse extends Command
     {
         $sentence = $this->argument('sentence');
 
-        /** @var Carbon $next_week */
-        $next_week = now()->addWeek();
 
-        $response = unserialize(Cache::remember("sentence|$sentence",$next_week, function() use ($sentence) {
-            $languageServiceClient = new LanguageServiceClient(['projectId' => env('GOOGLE_PROJECT_ID')]);
-
-            $document = (new Document())
-                ->setContent($sentence)
-                ->setType(Type::PLAIN_TEXT);
-
-            $features = (new Features())
-                ->setExtractEntities(true)
-                ->setExtractSyntax(true);
-
-            return serialize($languageServiceClient->annotateText($document, $features));
-        }));
+        $decision_tree = new DecisionTree($sentence);
 
         if ($this->option('with-analysis')) {
-            $analysis = $this->analyze_all($response);
+            $annotateTextResponse = $decision_tree->getAnnotateTextResponse();
+            $analysis = $this->analyze_all($annotateTextResponse);
             $this->output->write($analysis);
         }
-        // Process Entities
-        $entities = $response->getEntities();
 
-        $locations = [];
-        $subjects = [];
-        $filters = [];
+        $answer = $decision_tree->process();
 
-        foreach ($entities as $entity) {
-            /** @var Entity $entity */
-            switch ($entity->getType()) {
-                case EntityType::LOCATION:
-                    $locations[] = $entity;
-                    break;
-                case EntityType::ORGANIZATION:
-                    $subjects[] = $entity;
-                    break;
-                case EntityType::OTHER:
-                    $filters[] = $entity;
-                    break;
+        if ($answer->isWithinDomain()) {
+
+            foreach ($answer->getWarnings() as $warning) {
+                $this->output->warning($warning);
             }
-        }
 
-        if (empty($subjects)) {
-            $this->error("Desculpe, não entendi sua pergunta");
-            return 1;
+            if ($this->option('show-query')) {
+                $this->output->write(sprintf(
+                    preg_replace('/\?/','%s',$decision_tree->getQuery()->toSql()),
+                    ...array_map(function($value) {
+                        if (is_bool($value)) return "true";
+                        else if (is_string($value)) return "'$value'";
+                        else return $value;
+                    },$decision_tree->getQuery()->getBindings())
+                ));
+            }
+
+            $this->output->note(sprintf("Tipo de resposta: %s", Answer::name($answer->getType())));
+
+            $response = $answer->getValue();
+
+            if (is_array($response)) {
+                $response = join(PHP_EOL,$response);
+            }
+
+            $this->output->success($response);
+
+            return 0;
         } else {
+            $this->error("Desculpe, não entendi sua pergunta");
+            $this->error("Você deve perguntar alguma coisa sobre escolas");
 
-            $subject = Arr::first($subjects);
-
-            $lemma = collect($response->getTokens())
-                ->filter(function(Token $token) use ($subject) {
-                    return $token->getText()->getContent() == $subject->getName();
-                })->first()
-                ->getLemma();
-
-            if (in_array(strtolower($lemma),['escola','colégio','instituto'])) {
-                $query = Escola::query();
-            } else {
-                $this->error("Você deve perguntar alguma coisa sobre escolas");
-                return 1;
-            }
+            return 1;
         }
-
-        if (!empty($locations)) {
-
-            $uf = null;
-            $municipio = null;
-
-            foreach ($locations as $location) {
-
-                /** @noinspection SpellCheckingInspection */
-                $normalized_location = mb_strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $location->getName()));
-
-                /** @var UF $uf */
-                $uf = $uf ?? UF::query()
-                    ->where(DB::raw('lower(unaccent(no_estado))'), '=', $normalized_location)
-                    ->orWhere(DB::raw('lower(no_uf)'),'=',$normalized_location)
-                    ->first();
-            }
-
-            foreach ($locations as $location) {
-
-                /** @noinspection SpellCheckingInspection */
-                $normalized_location = mb_strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $location->getName()));
-
-                /** @var Municipio $municipio */
-                $municipio = $municipio ?? Municipio::query()
-                    ->where(DB::raw('lower(unaccent(no_municipio))'),'=',$normalized_location)
-                    ->where(function(Builder $query) use ($uf) {
-                        if ($uf) $query->where('co_uf','=',$uf->co_uf);
-                    })
-                    ->orderByRaw('qt_populacao DESC NULLS LAST')
-                    ->first();
-            }
-
-            if ($municipio) {
-                $query->where('co_municipio','=',$municipio->co_municipio);
-            } else if ($uf) {
-                $query->where('co_uf','=',$uf->co_uf);
-            }
-        }
-
-        $sentence_normalized = preg_replace('/\s+/',' ',
-            mb_strtolower(iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $sentence))
-        );
-
-        if (strstr($sentence_normalized,"ensino medio") !== FALSE) {
-            $query->whereRaw("en_tipo_ensino @> ARRAY['Medio'::tipo_ensino]");
-        }
-
-        $tokens = $response->getTokens();
-        $response_type = 'UNKNOWN';
-        $answer = 'Não conseguimos encontrar um resposta para você.';
-        foreach ($tokens as $token){
-            /** @var Token $token */
-            if (strtolower($token->getLemma()) == 'quanto') {
-                $response_type = 'Numero';
-                $answer = $query->count();
-            }
-
-            if (strtolower($token->getLemma()) == 'qual') {
-                if ($token->getPartOfSpeech()->getNumber() == Number::PLURAL) {
-                    $response_type = 'Lista';
-                    $limit = 100;
-                    $entities = $query
-                        ->select(['escolas.*', DB::raw('count(*) OVER (PARTITION BY NULL) AS total')])
-                        ->limit($limit)
-                        ->get();
-
-                    if ($entities->isEmpty()) {
-                        $answer = "Sua pesquisa não retornou resultados.";
-                    } else {
-                        $total = $entities->first()->total;
-                        if ($total > $limit) {
-                            $this->warn(sprintf(
-                                "Sua pesquisa teve muitos hits. Mostrando apenas os %d primeiros de %d",
-                                $limit, $total
-                            ));
-                        }
-                        $answer = join(PHP_EOL, $entities->map->no_entidade->toArray());
-                    }
-                } else {
-                    $response_type = 'Node de entidade';
-                    $answer = $query->first()->no_entidade;
-                }
-            }
-        }
-
-        $this->output->note(sprintf("Tipo de resposta: %s", $response_type));
-
-        $this->output->success($answer);
-
-        return 0;
     }
 
 
