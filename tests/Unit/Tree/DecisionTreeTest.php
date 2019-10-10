@@ -4,7 +4,6 @@ namespace Tests\Unit\Tree;
 
 use App\Tree\Answer;
 use App\Tree\DecisionTree;
-use Arr;
 use Tests\TestCase;
 
 class DecisionTreeTest extends TestCase
@@ -19,6 +18,41 @@ class DecisionTreeTest extends TestCase
         $this->assertEquals(Answer::NUMBER, $answer->getType());
         $this->assertIsInt($answer->getValue());
         $this->assertEquals(6, $answer->getValue());
+    }
+
+    public function testListHasALimitByDefault()
+    {
+        $tree = new DecisionTree(
+            'Quais as escolas de São Paulo?'
+        );
+
+        $answer = $tree->process();
+
+        $this->assertNotEmpty($answer->getWarnings());
+        $this->assertCount(100,$answer->getValue());
+    }
+
+    public function testListWithExplicitNumberOfResults()
+    {
+        $tree = new DecisionTree(
+            'Listar 400 escolas de São Paulo?'
+        );
+
+        $answer = $tree->process();
+
+        $this->assertCount(400,$answer->getValue());
+    }
+
+    public function testListWithExplicitNumberAboveCap()
+    {
+        $tree = new DecisionTree(
+            'Listar 501 escolas de São Paulo?'
+        );
+
+        $answer = $tree->process();
+
+        $this->assertNotEmpty($answer->getWarnings());
+        $this->assertCount(500,$answer->getValue());
     }
 
     public function testListNumberOfSchoolsOfInclusiveLevelsAtSomeCity()
