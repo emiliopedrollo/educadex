@@ -49,11 +49,48 @@ class DecisionTree
      */
     private $answer;
 
+    protected function normalizeSentence(string $sentence): string {
+        $sentence = trim(preg_replace('/\s+/',' ',$sentence));
+        $sentence = preg_replace('/(?<=\b\s)(\b[A-Z]{2}\b)/',' - \\1',$sentence);
+        return $sentence;
+    }
+
     public function __construct(string $sentence)
     {
-        $this->sentence = trim(preg_replace('/\s+/',' ',$sentence));
+        $this->sentence = $this->normalizeSentence($sentence);
         $this->answer = new Answer;
         $this->query = null;
+    }
+
+    protected function getNumberAnswer(Answer $answer) {
+        $answer->setType(Answer::NUMBER);
+        $answer->setValue($this->getQuery()->count());
+    }
+
+    protected function getListAnswer(Answer $answer, $limit = 100) {
+        $answer->setType(Answer::LIST);
+        $entities = $this->getQuery()
+            ->select(['escolas.*', DB::raw('count(*) OVER (PARTITION BY NULL) AS total')])
+            ->limit($limit)
+            ->get();
+
+        if ($entities->isEmpty()) {
+            $answer = "Sua pesquisa não retornou resultados.";
+        } else {
+            $total = $entities->first()->total;
+            if ($total > $limit) {
+                $answer->addWarning(sprintf(
+                    "Sua pesquisa teve muitos hits. Mostrando apenas os %d primeiros de %d",
+                    $limit, $total
+                ));
+            }
+            $answer->setValue($entities->map->no_entidade->toArray());
+        }
+    }
+
+    protected function getSingleEntityAnswer(Answer $answer) {
+        $answer->setType(Answer::NAME);
+        $answer->setValue($this->getQuery()->first()->no_entidade);
     }
 
     public function process(): Answer {
@@ -69,37 +106,30 @@ class DecisionTree
 
         if ($answer->isWithinDomain()) {
             foreach ($this->getTokens() as $token){
-                /** @var BaseToken $token */
+                /** @var Token $token */
                 if (strtolower($token->getLemma()) == 'quanto') {
-                    $answer->setType(Answer::NUMBER);
-                    $answer->setValue($this->getQuery()->count());
+                    $this->getNumberAnswer($answer);
                 }
 
                 if (strtolower($token->getLemma()) == 'qual') {
                     if ($token->getPartOfSpeech()->getNumber() == Number::PLURAL) {
-                        $answer->setType(Answer::LIST);
-                        $limit = 100;
-                        $entities = $this->getQuery()
-                            ->select(['escolas.*', DB::raw('count(*) OVER (PARTITION BY NULL) AS total')])
-                            ->limit($limit)
-                            ->get();
-
-                        if ($entities->isEmpty()) {
-                            $answer = "Sua pesquisa não retornou resultados.";
-                        } else {
-                            $total = $entities->first()->total;
-                            if ($total > $limit) {
-                                $answer->addWarning(sprintf(
-                                    "Sua pesquisa teve muitos hits. Mostrando apenas os %d primeiros de %d",
-                                    $limit, $total
-                                ));
-                            }
-                            $answer->setValue($entities->map->no_entidade->toArray());
-                        }
+                        $this->getListAnswer($answer);
                     } else {
-                        $answer->setType(Answer::NAME);
-                        $answer->setValue($this->getQuery()->first()->no_entidade);
+                        $this->getSingleEntityAnswer($answer);
                     }
+                }
+
+                if (strtolower($token->getLemma()) == 'listar') {
+
+                    if (($number = $token->getDependenciesFlat(3)->filter(function (Token $token){
+                        return is_numeric($token->getContent());
+                    }))->isNotEmpty()
+                    ) {
+                        $this->getListAnswer($answer, (int) $number->first()->getContent());
+                    } else {
+                        $this->getListAnswer($answer);
+                    }
+
                 }
             }
         } else {

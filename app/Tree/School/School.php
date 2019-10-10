@@ -39,7 +39,8 @@ class School extends Branch
                 ->send($tree)
                 ->through([
                     Location::class,
-                    Level::class
+                    Level::class,
+                    Order::class
                 ])->thenReturn();
 
         } else {

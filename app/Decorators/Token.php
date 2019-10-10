@@ -78,6 +78,19 @@ class Token
         });
     }
 
+    public function getDependenciesFlat($levels = 1): Collection {
+        if ($levels == 1) {
+            return $this->getDependencies();
+        } else if ($levels > 1) {
+            return $this->getDependencies()->map(function(Token $token) use ($levels) {
+                return $token->getDependenciesFlat($levels - 1);
+            })->merge($this->getDependencies())->flatten()->unique()
+                ->keyBy(function(Token $token) {return $token->getIndex(); })
+                ->sortBy(function(Token $token) {return $token->getIndex(); });
+        }
+        return collect([$this]);
+    }
+
     /**
      * @return BaseToken
      */
