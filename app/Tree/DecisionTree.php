@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Log;
 
 class DecisionTree
 {
@@ -57,6 +58,7 @@ class DecisionTree
 
     public function __construct(string $sentence)
     {
+        Log::notice("Question $sentence");
         $this->sentence = $this->normalizeSentence($sentence);
         $this->answer = new Answer;
         $this->query = null;
