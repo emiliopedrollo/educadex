@@ -123,14 +123,19 @@ class DecisionTree
 
                 if (strtolower($token->getLemma()) == 'listar') {
 
+                    $count = 100;
                     if (($number = $token->getDependenciesFlat(3)->filter(function (Token $token){
                         return is_numeric($token->getContent());
                     }))->isNotEmpty()
                     ) {
-                        $this->getListAnswer($answer, (int) $number->first()->getContent());
-                    } else {
-                        $this->getListAnswer($answer);
+                        $count = (int) $number->first()->getContent();
+                        if ($count > 500) {
+                            $answer->addWarning("Não é possível listar mais do que 500 entidades por pesquisa");
+                            $count = 500;
+                        }
                     }
+
+                    $this->getListAnswer($answer, $count);
 
                 }
             }
