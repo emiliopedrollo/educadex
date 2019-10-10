@@ -58,7 +58,7 @@ class DecisionTree
 
     public function __construct(string $sentence)
     {
-        Log::notice("Question $sentence");
+        Log::notice("Question: $sentence");
         $this->sentence = $this->normalizeSentence($sentence);
         $this->answer = new Answer;
         $this->query = null;
@@ -77,7 +77,7 @@ class DecisionTree
             ->get();
 
         if ($entities->isEmpty()) {
-            $answer = "Sua pesquisa não retornou resultados.";
+            $answer->setValue("Sua pesquisa não retornou resultados.");
         } else {
             $total = $entities->first()->total;
             if ($total > $limit) {
