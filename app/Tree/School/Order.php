@@ -46,19 +46,20 @@ class Order extends Branch
         dump("Checking for level constraint");
 
         /** @var Token $root */
-        $root = $tree->getTokens()->first(function(Token $token) {
+        if ($root = $tree->getTokens()->first(function(Token $token) {
             return in_array(to_lowercase($token->getLemma()),['ordem','ordenado']);
-        });
+        })) {
+            foreach ($root->getDependencies() as $token) {
 
-        foreach ($root->getDependencies() as $token) {
+                $levels = [];
+                $boolean = null;
+                foreach ($token->getDependencies() as $dependency) {
+                    $this->multipleLevels($dependency,$levels, $boolean);
+                }
 
-            $levels = [];
-            $boolean = null;
-            foreach ($token->getDependencies() as $dependency) {
-                $this->multipleLevels($dependency,$levels, $boolean);
             }
-
         }
+
 
         return $next($tree);
     }
