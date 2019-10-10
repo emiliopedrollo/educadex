@@ -45,7 +45,7 @@ class Parse extends Command
      *
      * @var string
      */
-    protected $signature = 'pergunta {sentence} {--A|with-analysis} {--Q|show-query}';
+    protected $signature = 'pergunta {sentence} {--A|with-analysis} {--Q|show-query} {--as-array}';
 
     /**
      * The console command description.
@@ -108,7 +108,11 @@ class Parse extends Command
             $response = $answer->getValue();
 
             if (is_array($response)) {
-                $response = join(PHP_EOL,$response);
+                if ($this->option('as-array')){
+                    $response = "[".PHP_EOL."'".join("',".PHP_EOL."'",$response)."'".PHP_EOL."]";
+                } else {
+                    $response = join(PHP_EOL,$response);
+                }
             }
 
             $this->output->success($response);

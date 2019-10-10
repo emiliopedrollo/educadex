@@ -43,7 +43,7 @@ class Order extends Branch
 
     function handle(DecisionTree $tree, Closure $next): DecisionTree
     {
-        dump("Checking for level constraint");
+        dump("Checking for order");
 
         /** @var Token $root */
         if ($root = $tree->getTokens()->first(function(Token $token) {
