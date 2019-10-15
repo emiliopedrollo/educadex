@@ -1,7 +1,9 @@
 version: '2'
 volumes:
   redis:
+    driver: local
   educadex:
+    driver: local
 services:
   redis:
     build:
