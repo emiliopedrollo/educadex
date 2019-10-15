@@ -20,6 +20,97 @@ class DecisionTreeTest extends TestCase
         $this->assertEquals(6, $answer->getValue());
     }
 
+    public function testSchoolsRS()
+    {
+//        $this->markTestIncomplete();
+
+        $tree = new DecisionTree('Quantas escolas tem no Rio Grande do Sul?');
+
+        $answer = $tree->process();
+
+        $this->assertEquals(Answer::NUMBER, $answer->getType());
+        $this->assertIsInt($answer->getValue());
+        $this->assertEquals(14526, $answer->getValue());
+    }
+    public function testSchoolsSP()
+    {
+//        $this->markTestIncomplete();
+
+        $tree = new DecisionTree('Quantas escolas tem em SP?');
+
+        $answer = $tree->process();
+
+        $this->assertEquals(Answer::NUMBER, $answer->getType());
+        $this->assertIsInt($answer->getValue());
+        $this->assertEquals(38576, $answer->getValue());
+    }
+    public function testSchoolsSaoPauloState()
+    {
+        $this->markTestIncomplete();
+
+        $tree = new DecisionTree('Quantas escolas tem no estado de São Paulo?');
+
+        $answer = $tree->process();
+
+        $this->assertEquals(Answer::NUMBER, $answer->getType());
+        $this->assertIsInt($answer->getValue());
+        $this->assertEquals(38576, $answer->getValue());
+    }
+    public function testSchoolsSaoPauloCity()
+    {
+        $tree = new DecisionTree('Quantas escolas tem em São Paulo?');
+
+        $answer = $tree->process();
+
+        $this->assertEquals(Answer::NUMBER, $answer->getType());
+        $this->assertIsInt($answer->getValue());
+        $this->assertEquals(9822, $answer->getValue());
+    }
+
+    public function testSchoolsAmazonas()
+    {
+        $tree = new DecisionTree('Quantas escolas tem no Amazonas?');
+
+        $answer = $tree->process();
+
+        $this->assertEquals(Answer::NUMBER, $answer->getType());
+        $this->assertIsInt($answer->getValue());
+        $this->assertEquals(7322, $answer->getValue());
+    }
+
+    public function testSchoolsParana()
+    {
+        $tree = new DecisionTree('Quantas escolas tem no Paraná?');
+
+        $answer = $tree->process();
+
+        $this->assertEquals(Answer::NUMBER, $answer->getType());
+        $this->assertIsInt($answer->getValue());
+        $this->assertEquals(11958, $answer->getValue());
+    }
+
+    public function testSchoolsSpecialRS()
+    {
+        $tree = new DecisionTree('Quantas escolas de ensino especial tem no Rio Grande do Sul?');
+
+        $answer = $tree->process();
+
+        $this->assertEquals(Answer::NUMBER, $answer->getType());
+        $this->assertIsInt($answer->getValue());
+        $this->assertEquals(225, $answer->getValue());
+    }
+
+    public function testSchoolsEADSC()
+    {
+        $tree = new DecisionTree('Quantas escolas de ensino EAD tem em Santa Catarina?');
+
+        $answer = $tree->process();
+
+        $this->assertEquals(Answer::NUMBER, $answer->getType());
+        $this->assertIsInt($answer->getValue());
+        $this->assertEquals(44, $answer->getValue());
+    }
+
     public function testListHasALimitByDefault()
     {
         $tree = new DecisionTree(
