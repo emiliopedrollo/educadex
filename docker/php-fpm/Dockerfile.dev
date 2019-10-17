@@ -9,7 +9,16 @@ RUN docker-php-ext-install bcmath mbstring && \
     sed -i 's/www-data/nobody/' /usr/local/etc/php-fpm.d/www.conf
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted gnu-libiconv
+
+RUN apk add g++ make autoconf && \
+    adduser -D php && \
+    sed -i 's/nobody/php/' /usr/local/etc/php-fpm.d/www.conf && \
+    pecl install xdebug && \
+    docker-php-ext-enable xdebug
+
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
+ENV PHP_IDE_CONFIG "serverName=docker"
+ENV XDEBUG_CONFIG "remote_enable=1 remote_autostart=1 remote_host=127.17.0.1"
 
 CMD ["php-fpm"]
 

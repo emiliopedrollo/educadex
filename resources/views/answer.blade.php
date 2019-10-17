@@ -8,23 +8,10 @@
 
     <div class="accordion col-sm-10 offset-sm-1">
 
-        Tipo de resposta {{ $response_type }}
-        <br/>
-
-        @foreach($subjects as $subject)
-            Sujeito: {{ $subject->getName() }}
-        @endforeach
-        <br/>
-        @foreach($locations as $location)
-            Local relacionado: {{ $location->getName() }}
-        @endforeach
-        <br/>
-        @foreach($filters as $filter)
-            Possíveis filtros: {{ $filter->getName() }}
-        @endforeach
+        {{ dump($answer) }}
 
     </div>
-
+    @if( App::environment('local') ):
     <hr class="my-4">
     <div class="accordion col-sm-10 offset-sm-1">
 
@@ -43,4 +30,5 @@
             </div>
         </div>
     </div>
+    @endif
 @endsection
