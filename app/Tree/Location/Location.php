@@ -24,7 +24,6 @@ class Location extends Branch
         })->toArray();
 
         if (array_intersect($root_dependency_lemma,['cidade','estado','localidade'])){
-            dump("subject is a LOCATION");
             $tree->getAnswer()->setEntity(Answer::ENTITY_LOCATION);
             return $tree;
         } else {

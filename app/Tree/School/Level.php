@@ -63,8 +63,6 @@ class Level extends Branch
 
     function handle(DecisionTree $tree, Closure $next): DecisionTree
     {
-        dump("Checking for level constraint");
-
         /** @var Token $root */
         $root = $tree->getTokens()->first(function(Token $token) {
             return in_array(to_lowercase($token->getLemma()),['escola','colegio','instituto']);
