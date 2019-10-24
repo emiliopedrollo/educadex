@@ -42,6 +42,7 @@
             </li>
         </ul>
 
+        <a class="btn btn-primary" href="{{ route('home') }}" role="button" aria-controls="analysis">Começar</a>
     </div>
 
 @endsection
