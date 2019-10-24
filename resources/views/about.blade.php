@@ -4,7 +4,7 @@
 
     <div class="col-sm-10 offset-sm-1 my-auto col-lg-6 offset-lg-3">
 
-        <h2>BEM VINDO AO EDUCADEX</h2>
+        <h2 class="mt-5">BEM VINDO AO EDUCADEX</h2>
         <p>
             <b>O problema</b>: Em muitas ocasiões, é relevante a busca de informações sobre dados na educação no Brasil,
             e em muitos destes casos a complexidade de pesquisa em sites e documentos cheio de dados complexos e
@@ -42,7 +42,9 @@
             </li>
         </ul>
 
-        <a class="btn btn-primary" href="{{ route('home') }}" role="button" aria-controls="analysis">Começar</a>
+        <a class="btn btn-primary" href="{{ route('home') }}">Continuar</a>
+        <a class="btn btn-outline-primary" href="https://github.com/emiliopedrollo/educadex/wiki"
+            target="_blank">Ir para Wiki</a>
     </div>
 
 @endsection

@@ -13,7 +13,7 @@
 
 Route::get('/', function () {
     return view('home');
-});
+})->name('home');
 
 Route::get('/about', 'HomeController@about')->name('about');
 Route::get('/search', 'SearchController@search')->name('search');
