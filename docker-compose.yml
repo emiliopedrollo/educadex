@@ -38,8 +38,5 @@ services:
       - ./docker/nginx/conf.d/:/etc/nginx/conf.d
     networks:
       - traefik
-    ports:
-      - "80:80"
-      - "443:443"
     depends_on:
       - php-fpm
