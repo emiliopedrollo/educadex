@@ -19,7 +19,7 @@ RUN apk add g++ make autoconf && \
 
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 ENV PHP_IDE_CONFIG "serverName=docker"
-ENV XDEBUG_CONFIG "remote_enable=1 remote_autostart=1 remote_host=127.17.0.1"
+ENV XDEBUG_CONFIG "remote_enable=1 remote_autostart=1 remote_host=host.docker.internal"
 
 CMD ["php-fpm"]
 
