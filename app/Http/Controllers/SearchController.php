@@ -99,8 +99,6 @@ class SearchController extends Controller
      */
     public function search(Request $request) {
 
-
-
         $decision_tree = new DecisionTree($request->input('search'));
 
         $analysis = null;
