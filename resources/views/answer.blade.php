@@ -36,7 +36,7 @@
     </div>
     <hr>
     <div class="accordion col-sm-10 offset-sm-1">
-        <a href="https://google.com">Deixe seu comentário</a>
+        <a href="https://forms.gle/aeMWbBv3j96xKvrR9">Deixe seu comentário</a>
     </div>
     @if( App::environment('local') ):
     <hr class="my-4">
