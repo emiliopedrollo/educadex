@@ -12,7 +12,6 @@ services:
       dockerfile: ./docker/redis/Dockerfile
     volumes:
       - redis:/var/lib/redis
-      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       - traefik
   php-fpm:
@@ -33,9 +32,6 @@ services:
       dockerfile: ./docker/nginx/Dockerfile
     volumes:
       - educadex:/var/www/educadex
-      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./docker/nginx/sites/:/etc/nginx/sites-available
-      - ./docker/nginx/conf.d/:/etc/nginx/conf.d
     networks:
       - traefik
     depends_on:
