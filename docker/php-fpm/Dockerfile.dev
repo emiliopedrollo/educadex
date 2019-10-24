@@ -11,9 +11,15 @@ RUN apk add postgresql-dev && \
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted gnu-libiconv
 
+RUN apk add g++ make autoconf && \
+    adduser -D php && \
+    sed -i 's/nobody/php/' /usr/local/etc/php-fpm.d/www.conf && \
+    pecl install xdebug && \
+    docker-php-ext-enable xdebug
+
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
-ENV APP_ENV production
-ENV APP_DEBUG false
+ENV PHP_IDE_CONFIG "serverName=docker"
+ENV XDEBUG_CONFIG "remote_enable=1 remote_autostart=1 remote_host=host.docker.internal"
 
 CMD ["php-fpm"]
 

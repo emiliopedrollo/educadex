@@ -17,8 +17,6 @@ class Location extends Branch
 {
     function handle(DecisionTree $tree, Closure $next): DecisionTree
     {
-        dump("Checking for location constraint");
-
         $locations = collect($tree->getAnnotateTextResponse()->getEntities())->filter(function(Entity $entity){
             return $entity->getType() == EntityType::LOCATION;
         });

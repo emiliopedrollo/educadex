@@ -2,42 +2,31 @@ version: '2'
 volumes:
   redis:
     driver: local
-  educadex:
-    driver: local
 services:
   redis:
-    container_name: educadex_redis
     build:
       context: .
       dockerfile: ./docker/redis/Dockerfile
     volumes:
-      - redis:/var/lib/redis
+      - redis:/data
       - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
-    networks:
-      - traefik
   php-fpm:
-    container_name: educadex_php_fpm
     build:
       context: .
-      dockerfile: ./docker/php-fpm/Dockerfile
+      dockerfile: ./docker/php-fpm/Dockerfile.dev
     volumes:
-      - educadex:/var/www/educadex
-    networks:
-      - traefik
+      - ./:/var/www/educadex
     depends_on:
       - redis
   nginx:
-    container_name: educadex
     build:
       context: .
       dockerfile: ./docker/nginx/Dockerfile
     volumes:
-      - educadex:/var/www/educadex
+      - ./:/var/www/educadex
       - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./docker/nginx/sites/:/etc/nginx/sites-available
       - ./docker/nginx/conf.d/:/etc/nginx/conf.d
-    networks:
-      - traefik
     ports:
       - "80:80"
       - "443:443"

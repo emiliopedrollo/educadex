@@ -32,7 +32,6 @@ class School extends Branch
 
             $tree->setQuery(Escola::query());
 
-            dump("subject is a SCHOOL");
             $tree->getAnswer()->setEntity(Answer::ENTITY_SCHOOL);
 
             return app(Pipeline::class)

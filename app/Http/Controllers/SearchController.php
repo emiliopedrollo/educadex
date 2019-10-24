@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App;
+use App\Tree\DecisionTree;
 use Google\ApiCore\ApiException;
 use Google\ApiCore\ValidationException;
 use Google\Cloud\Language\V1\AnnotateTextResponse;
@@ -97,61 +99,16 @@ class SearchController extends Controller
      */
     public function search(Request $request) {
 
-        $languageServiceClient = new LanguageServiceClient(['projectId' => env('GOOGLE_PROJECT_ID')]);
+        $decision_tree = new DecisionTree($request->input('search'));
 
-        $document = (new Document())
-            ->setContent($request->input('search'))
-            ->setType(Type::PLAIN_TEXT);
-        // Set Features to extract ['entities', 'syntax', 'sentiment']
-        $features = (new Features())
-            ->setExtractEntities(true)
-            ->setExtractSyntax(true);
-
-        // Collect annotations
-        $response = $languageServiceClient->annotateText($document, $features);
-
-        $analysis = $this->analyze_all($response);
-        // Process Entities
-        $entities = $response->getEntities();
-
-        $locations = [];
-        $subjects = [];
-        $filters = [];
-
-        foreach ($entities as $entity) {
-            /** @var Entity $entity */
-            switch ($entity->getType()) {
-                case EntityType::LOCATION:
-                    $locations[] = $entity;
-                    break;
-                case EntityType::ORGANIZATION:
-                    $subjects[] = $entity;
-                    break;
-                case EntityType::OTHER:
-                    $filters[] = $entity;
-                    break;
-            }
+        $analysis = null;
+        if (App::environment('local')) {
+            $annotateTextResponse = $decision_tree->getAnnotateTextResponse();
+            $analysis = $this->analyze_all($annotateTextResponse);
         }
 
-        $tokens = $response->getTokens();
-        $response_type = 'Informação';
-        foreach ($tokens as $token){
-            /** @var Token $token */
-            if (strtolower($token->getLemma()) == 'quanto') {
-                $response_type = 'Numero';
-            }
+        $answer = $decision_tree->process();
 
-            if (strtolower($token->getLemma()) == 'qual') {
-                if ($token->getPartOfSpeech()->getNumber() == Number::PLURAL) {
-                    $response_type = 'Lista';
-                } else {
-                    $response_type = 'Node de entidade';
-                }
-            }
-        }
-
-
-        $languageServiceClient->close();
-        return view('answer',compact('analysis','locations', 'subjects','filters','response_type'));
+        return view('answer',compact('analysis','answer'));
     }
 }
