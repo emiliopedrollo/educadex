@@ -8,8 +8,35 @@
 
     <div class="accordion col-sm-10 offset-sm-1">
 
-        {{ dump($answer) }}
+        @foreach($answer->getWarnings() as $warning)
+            <div class="alert alert-warning" role="alert">{{ $warning }}</div>
+        @endforeach
 
+        @switch($answer->getType())
+            @case(\App\Tree\Answer::NUMBER)
+            @case(\App\Tree\Answer::NAME)
+                {{ $answer->getValue() }}
+                @break
+            @case(\App\Tree\Answer::LIST)
+                <table class="table table-sm">
+                    <tbody>
+                    @foreach($answer->getValue() as $item)
+                        <tr>
+                            <td>{{ $item }}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+                @break
+            @default
+            @case(\App\Tree\Answer::UNKNOWN)
+                Desculpa, mas não conseguimos entender a sua pergunta
+                @break
+        @endswitch
+    </div>
+    <hr>
+    <div class="accordion col-sm-10 offset-sm-1">
+        <a href="https://google.com">Deixe seu comentário</a>
     </div>
     @if( App::environment('local') ):
     <hr class="my-4">
