@@ -27,12 +27,21 @@ services:
       - redis
   nginx:
     container_name: educadex
+    labels:
+      - "traefik.http.routers.whoami.rule=Host(`educadex.inf.ufsm.br`)"
+      - "traefik.http.routers.redirs.entrypoints=web"
+      - "traefik.http.routers.redirs.middlewares=redirect-to-https"
     build:
       context: .
       dockerfile: ./docker/nginx/Dockerfile
     volumes:
       - educadex:/var/www/educadex
     networks:
+      - traefik
       - default
     depends_on:
       - php-fpm
+networks:
+  traefik:
+    external:
+      name: traefik
