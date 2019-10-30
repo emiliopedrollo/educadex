@@ -28,6 +28,7 @@ services:
   nginx:
     container_name: educadex
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.whoami.rule=Host(`educadex.inf.ufsm.br`)"
       - "traefik.http.routers.redirs.entrypoints=web"
       - "traefik.http.routers.redirs.middlewares=redirect-to-https"
