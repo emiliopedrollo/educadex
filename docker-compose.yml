@@ -40,4 +40,5 @@ services:
       - php-fpm
 networks:
   traefik:
-    name: traefik
+    external:
+      name: traefik
