@@ -46,8 +46,7 @@ services:
       - php-fpm
 networks:
   traefik:
-    external:
-      name: traefik
+    name: traefik
 secrets:
   educadexkey:
     external: true
