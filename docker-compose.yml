@@ -1,4 +1,4 @@
-version: '3.7'
+version: '2'
 volumes:
   redis:
     driver: local
@@ -34,6 +34,11 @@ services:
     volumes:
       - educadex:/var/www/educadex
     networks:
+      - traefik
       - default
     depends_on:
       - php-fpm
+networks:
+  traefik:
+    external:
+      name: traefik
