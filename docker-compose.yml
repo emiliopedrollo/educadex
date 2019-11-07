@@ -23,6 +23,9 @@ services:
       - educadex:/var/www/educadex
     networks:
       - default
+    secrets:
+      - educadexkey
+      - educadexenv
     depends_on:
       - redis
   nginx:
@@ -45,3 +48,8 @@ networks:
   traefik:
     external:
       name: traefik
+secrets:
+  educadexkey:
+    external: true
+  educadexenv:
+    external: true
