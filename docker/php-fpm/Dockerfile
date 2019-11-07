@@ -1,5 +1,4 @@
 FROM php:fpm-alpine
-ENV COMPOSER_ALLOW_SUPERUSER 1
 WORKDIR /var/www/educadex
 COPY --chown=nobody . /var/www/educadex
 VOLUME /var/www/educadex
@@ -11,7 +10,8 @@ RUN apk add postgresql-dev && \
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted gnu-libiconv
 
 USER nobody
-RUN echo "APP_KEY=" >> .env && \
+RUN chown nobody:nobody . && \
+    echo "APP_KEY=" >> .env && \
     composer install --no-dev --no-cache --prefer-dist --no-interaction && \
     php educadex key:generate --ansi
 
