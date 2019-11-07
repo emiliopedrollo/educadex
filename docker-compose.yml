@@ -21,9 +21,6 @@ services:
       - educadex:/var/www/educadex
     networks:
       - default
-    secrets:
-      - educadexkey
-      - educadexenv
     depends_on:
       - redis
   nginx:
