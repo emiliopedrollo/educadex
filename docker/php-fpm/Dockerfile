@@ -12,8 +12,8 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/co
 USER nobody
 RUN -e \
     chown nobody:nobody . && \
-    export APP_KEY=$(php educadex key:generate --ansi --show) && \
-    composer install --no-dev --no-cache --prefer-dist --no-interaction
+    composer install --no-dev --no-cache --prefer-dist --no-interaction && \
+    export APP_KEY=$(php educadex key:generate --ansi --show)
 
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 ENV APP_ENV production
