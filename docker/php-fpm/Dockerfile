@@ -10,10 +10,10 @@ RUN apk add postgresql-dev && \
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted gnu-libiconv
 
 USER nobody
-RUN chown nobody:nobody . && \
-    echo "APP_KEY=" >> .env && \
-    composer install --no-dev --no-cache --prefer-dist --no-interaction && \
-    php educadex key:generate --ansi
+RUN -e \
+    chown nobody:nobody . && \
+    export APP_KEY=$(php educadex key:generate --ansi --show) && \
+    composer install --no-dev --no-cache --prefer-dist --no-interaction
 
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 ENV APP_ENV production
