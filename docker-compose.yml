@@ -34,11 +34,6 @@ services:
     volumes:
       - educadex:/var/www/educadex
     networks:
-      - traefik
       - default
     depends_on:
       - php-fpm
-networks:
-  traefik:
-    external: true
-    name: traefik
