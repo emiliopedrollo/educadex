@@ -29,11 +29,8 @@ services:
     container_name: educadex
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=traefik"
-      - "traefik.port=80"
-      - "traefik.http.routers.whoami.rule=Host(`educadex.inf.ufsm.br`)"
-      - "traefik.http.routers.redirs.entrypoints=web"
-      - "traefik.http.routers.redirs.middlewares=redirect-to-https"
+      - "traefik.http.routers.nginx.rule=Host(`educadex.inf.ufsm.br`)"
+      - "traefik.http.routers.nginx.entrypoints=web"
     build:
       context: .
       dockerfile: ./docker/nginx/Dockerfile
