@@ -12,6 +12,7 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/co
 
 RUN apk add gnupg
 RUN chown nobody:nobody -R .
+RUN rm -fR vendor
 
 USER nobody
 
