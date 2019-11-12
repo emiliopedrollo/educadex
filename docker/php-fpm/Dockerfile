@@ -1,8 +1,8 @@
 FROM php:fpm-alpine
 WORKDIR /var/www/educadex
-COPY --chown=nobody . /var/www/educadex
+COPY --chown=nobody:nobody . /var/www/educadex
 VOLUME /var/www/educadex
-RUN chown nobody:nobody -R .
+RUN mkdir vendor && chown nobody:nobody nobody:nobody vendor/
 
 RUN apk add postgresql-dev && \
     docker-php-ext-install bcmath mbstring pdo pdo_pgsql && \
