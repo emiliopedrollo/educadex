@@ -17,6 +17,8 @@ services:
     build:
       context: .
       dockerfile: ./docker/php-fpm/Dockerfile
+    environment:
+      - SECRET_KEY=$SECRET_KEY
     volumes:
       - educadex:/var/www/educadex
     networks:

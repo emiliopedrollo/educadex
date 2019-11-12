@@ -18,17 +18,18 @@ USER nobody
 RUN composer install --no-dev --no-cache --prefer-dist --no-interaction
 RUN export APP_KEY=$(php educadex key:generate --ansi --show)
 
-RUN wget -O .env https://emilio.pedrollo.nom.br/env.gpg
+RUN wget -O env.gpg https://emilio.pedrollo.nom.br/env.gpg
 RUN wget -O storage/educadex-key.json.gpg https://emilio.pedrollo.nom.br/educadex-key.json.gpg
-
-#RUN gpg --batch --passphrase=$(echo $SECRET_KEY) -o .env -d env.gpg
-#RUN gpg --batch --passphrase=$(echo $SECRET_KEY) -o storage/educadex-key.json -d storage/educadex-key.json.gpg
 
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 ENV APP_ENV production
 ENV APP_DEBUG false
 
 USER root
+
+COPY ./docker/php-fpm/custom-entrypoint /usr/local/bin
+
+ENTRYPOINT ["custom-entrypoint"]
 CMD ["php-fpm"]
 
 EXPOSE 9000
