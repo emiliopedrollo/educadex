@@ -2,7 +2,7 @@ FROM php:fpm-alpine
 WORKDIR /var/www/educadex
 COPY --chown=nobody:nobody . /var/www/educadex
 VOLUME /var/www/educadex
-RUN mkdir vendor && chown nobody:nobody nobody:nobody vendor/
+RUN rm -fR vendor && mkdir vendor && chown nobody:nobody vendor/
 
 RUN apk add postgresql-dev && \
     docker-php-ext-install bcmath mbstring pdo pdo_pgsql && \
