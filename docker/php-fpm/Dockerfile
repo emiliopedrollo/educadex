@@ -11,7 +11,7 @@ RUN apk add postgresql-dev && \
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted gnu-libiconv
 
 RUN apk add gnupg
-RUN chown nobody:nobody .
+RUN chown nobody:nobody -R .
 
 USER nobody
 
