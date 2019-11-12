@@ -3,15 +3,14 @@ WORKDIR /var/www/educadex
 COPY --chown=nobody . /var/www/educadex
 VOLUME /var/www/educadex
 
-RUN -e \
-    apk add --no-cache postgresql-dev && \
+RUN apk add postgresql-dev && \
     docker-php-ext-install bcmath mbstring pdo pdo_pgsql && \
-    curl -sL https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && \
+    curl -sL https://getcomposer.org/installer | php -- --install-dir /usr/bin --filename composer && \
     sed -i 's/www-data/nobody/' /usr/local/etc/php-fpm.d/www.conf
 
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted gnu-libiconv
 
-RUN apk add --no-cache gnupg
+RUN apk add gnupg
 RUN chown nobody:nobody .
 
 USER nobody
