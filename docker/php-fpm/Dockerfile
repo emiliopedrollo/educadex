@@ -3,7 +3,8 @@ WORKDIR /var/www/educadex
 COPY --chown=nobody . /var/www/educadex
 VOLUME /var/www/educadex
 
-RUN apk add --no-cache postgresql-dev && \
+RUN -e \
+    apk add --no-cache postgresql-dev && \
     docker-php-ext-install bcmath mbstring pdo pdo_pgsql && \
     curl -sL https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && \
     sed -i 's/www-data/nobody/' /usr/local/etc/php-fpm.d/www.conf
@@ -21,8 +22,8 @@ RUN export APP_KEY=$(php educadex key:generate --ansi --show)
 RUN wget -O .env https://emilio.pedrollo.nom.br/env.gpg
 RUN wget -O storage/educadex-key.json.gpg https://emilio.pedrollo.nom.br/educadex-key.json.gpg
 
-RUN gpg --batch --passphrase=$(echo $SECRET_KEY) -o .env -d env.gpg
-RUN gpg --batch --passphrase=$(echo $SECRET_KEY) -o storage/educadex-key.json -d storage/educadex-key.json.gpg
+#RUN gpg --batch --passphrase=$(echo $SECRET_KEY) -o .env -d env.gpg
+#RUN gpg --batch --passphrase=$(echo $SECRET_KEY) -o storage/educadex-key.json -d storage/educadex-key.json.gpg
 
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 ENV APP_ENV production
