@@ -2,6 +2,7 @@ FROM php:fpm-alpine
 WORKDIR /var/www/educadex
 COPY --chown=nobody . /var/www/educadex
 VOLUME /var/www/educadex
+RUN chown nobody:nobody -R .
 
 RUN apk add postgresql-dev && \
     docker-php-ext-install bcmath mbstring pdo pdo_pgsql && \
@@ -11,11 +12,8 @@ RUN apk add postgresql-dev && \
 RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted gnu-libiconv
 
 RUN apk add gnupg
-RUN chown nobody:nobody -R .
-RUN rm -fR vendor
 
 USER nobody
-
 RUN composer install --no-dev --no-cache --prefer-dist --no-interaction
 RUN export APP_KEY=$(php educadex key:generate --ansi --show)
 
