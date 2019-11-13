@@ -26,6 +26,7 @@ ENV APP_DEBUG false
 USER root
 
 COPY ./docker/php-fpm/custom-entrypoint /usr/local/bin
+RUN chmod +x /usr/local/bin/custom-entrypoint
 ENTRYPOINT ["custom-entrypoint"]
 CMD ["php-fpm"]
 
