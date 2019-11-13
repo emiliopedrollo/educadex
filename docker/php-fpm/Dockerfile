@@ -1,8 +1,9 @@
 FROM php:fpm-alpine
 WORKDIR /var/www/educadex
 COPY --chown=nobody:nobody . /var/www/educadex
-VOLUME /var/www/educadex
-RUN rm -fR vendor && mkdir vendor && chown nobody:nobody vendor/
+RUN chown nobody:nobody /var/www/educadex
+COPY ./docker/php-fpm/custom-entrypoint /usr/local/bin
+ENTRYPOINT ["custom-entrypoint"]
 
 RUN apk add postgresql-dev && \
     docker-php-ext-install bcmath mbstring pdo pdo_pgsql && \
@@ -14,11 +15,14 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/co
 RUN apk add gnupg
 
 USER nobody
+RUN rm -fR vendor
 RUN composer install --no-dev --no-cache --prefer-dist --no-interaction
 RUN export APP_KEY=$(php educadex key:generate --ansi --show)
 
-RUN wget -O env.gpg https://emilio.pedrollo.nom.br/env.gpg
-RUN wget -O storage/educadex-key.json.gpg https://emilio.pedrollo.nom.br/educadex-key.json.gpg
+ADD --chown=nobody:nobody https://emilio.pedrollo.nom.br/env.gpg env.gpg
+ADD --chown=nobody:nobody https://emilio.pedrollo.nom.br/educadex-key.json.gpg storage/env.gpg
+
+VOLUME /var/www/educadex
 
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 ENV APP_ENV production
@@ -28,7 +32,6 @@ USER root
 
 COPY ./docker/php-fpm/custom-entrypoint /usr/local/bin
 
-ENTRYPOINT ["custom-entrypoint"]
 CMD ["php-fpm"]
 
 EXPOSE 9000
