@@ -2,8 +2,6 @@ FROM php:fpm-alpine
 WORKDIR /var/www/educadex
 COPY --chown=nobody:nobody . /var/www/educadex
 RUN chown nobody:nobody /var/www/educadex
-COPY ./docker/php-fpm/custom-entrypoint /usr/local/bin
-ENTRYPOINT ["custom-entrypoint"]
 
 RUN apk add postgresql-dev && \
     docker-php-ext-install bcmath mbstring pdo pdo_pgsql && \
@@ -19,9 +17,6 @@ RUN rm -fR vendor
 RUN composer install --no-dev --no-cache --prefer-dist --no-interaction
 RUN export APP_KEY=$(php educadex key:generate --ansi --show)
 
-ADD --chown=nobody:nobody https://emilio.pedrollo.nom.br/env.gpg env.gpg
-ADD --chown=nobody:nobody https://emilio.pedrollo.nom.br/educadex-key.json.gpg storage/env.gpg
-
 VOLUME /var/www/educadex
 
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
@@ -31,7 +26,7 @@ ENV APP_DEBUG false
 USER root
 
 COPY ./docker/php-fpm/custom-entrypoint /usr/local/bin
-
+ENTRYPOINT ["custom-entrypoint"]
 CMD ["php-fpm"]
 
 EXPOSE 9000
