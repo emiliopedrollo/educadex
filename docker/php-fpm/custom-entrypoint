@@ -1,9 +1,13 @@
 #!/bin/sh
 
-rm -f /var/www/educadex/.env /var/www/educadex/storage/educadex-key.json
+# .env
+echo APP_KEY=$(php educadex --no-ansi --no-interaction --show) > .env
+gpg --batch --passphrase=$(echo ${SECRET_KEY}) -d /var/www/educadex/env.gpg >> .env 
+chown nobody:nobody /var/www/educadex/.env
 
-export $(gpg --batch --passphrase=$(echo ${SECRET_KEY}) -d /var/www/educadex/env.gpg | -grep -v '^#' | xargs)
-
+# educadex-key.json
 gpg --batch --passphrase=$(echo ${SECRET_KEY}) -o /var/www/educadex/storage/educadex-key.json -d /var/www/educadex/storage/educadex-key.json.gpg
+chown nobody:nobody /var/www/educadex/storage/educadex-key.json
 
+# continue to parent entrypoint
 exec docker-php-entrypoint "$@"
