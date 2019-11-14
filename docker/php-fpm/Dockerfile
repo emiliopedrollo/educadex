@@ -15,7 +15,7 @@ RUN apk add gnupg
 USER nobody
 RUN rm -fR vendor
 RUN composer install --no-dev --no-cache --prefer-dist --no-interaction
-RUN echo APP_KEY=$(php educadex key:generate --no-ansi --no-interaction --show) > .env
+RUN echo APP_KEY=$(php educadex key:generate --no-ansi --no-interaction --show) > app.key
 
 VOLUME /var/www/educadex
 
