@@ -6,7 +6,6 @@ volumes:
     driver: local
 services:
   redis:
-    container_name: educadex_redis
     build:
       context: .
       dockerfile: ./docker/redis/Dockerfile
@@ -15,10 +14,11 @@ services:
     networks:
       - default
   php-fpm:
-    container_name: educadex_php_fpm
     build:
       context: .
       dockerfile: ./docker/php-fpm/Dockerfile
+    environment:
+      - SECRET_KEY=$SECRET_KEY
     volumes:
       - educadex:/var/www/educadex
     networks:
@@ -26,7 +26,6 @@ services:
     depends_on:
       - redis
   nginx:
-    container_name: educadex
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nginx.rule=Host(`educadex.inf.ufsm.br`)"

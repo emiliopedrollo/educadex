@@ -1,0 +1,9 @@
+#!/bin/sh
+
+rm -f /var/www/educadex/.env /var/www/educadex/storage/educadex-key.json
+
+gpg --batch --passphrase=$(echo ${SECRET_KEY}) -o /var/www/educadex/.env -d /var/www/educadex/env.gpg
+
+gpg --batch --passphrase=$(echo ${SECRET_KEY}) -o /var/www/educadex/storage/educadex-key.json -d /var/www/educadex/storage/educadex-key.json.gpg
+
+exec docker-php-entrypoint "$@"
