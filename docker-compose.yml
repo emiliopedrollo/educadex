@@ -30,6 +30,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.nginx.rule=Host(`educadex.inf.ufsm.br`)"
       - "traefik.http.routers.nginx.entrypoints=web"
+      - "traefik.docker.network=traefik"
     build:
       context: .
       dockerfile: ./docker/nginx/Dockerfile
