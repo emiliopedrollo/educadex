@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # .env
-echo APP_KEY=$(php educadex --no-ansi --no-interaction --show) > .env
+rm -f /var/www/educadex/.env
+cp /var/www/educadex/app.key /var/www/educadex/.env
 gpg --batch --passphrase=$(echo ${SECRET_KEY}) -d /var/www/educadex/env.gpg >> .env 
 chown nobody:nobody /var/www/educadex/.env
 
