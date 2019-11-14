@@ -30,7 +30,13 @@
                 @break
             @default
             @case(\App\Tree\Answer::UNKNOWN)
-                Desculpa, mas não conseguimos entender a sua pergunta
+                <h5>Desculpa, mas não conseguimos entender a sua pergunta</h5>
+                <p class="mb-1">
+                    Tente reescrevê-la de outra forma,
+                </p>
+                <p>
+                    Existe a possibilidade de não possuirmos dados sobre a pergunta feita.
+                </p>
                 @break
         @endswitch
     </div>

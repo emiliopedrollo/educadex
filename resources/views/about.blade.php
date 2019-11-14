@@ -17,31 +17,9 @@
             base de dados vasta, que pode ser explorada por qualquer usuário.
         </p>
         <p>
-            <b>Dicas de uso</b>:
+            Caso deseje saber mais sobre o Educadex, clica no botão “Ir para Wiki”. Do contrário, sinta-se livre para
+            começar a pesquisar clicando no botão “Continuar”
         </p>
-        <ul>
-            <li>
-                Para utilizar a ferramenta, basta fazer uma pergunta no campo de busca, e depois clicar no botão
-                para pesquisar
-            </li>
-            <li>
-                O melhor jeito de garantir que entenderemos a sua pergunta, é utilizar do português correto,
-                evitando erros gramaticais e abreviações
-            </li>
-            <li>
-                Caso a ferramenta não compreenda a sua pergunta, tente reescrevê-la de outra forma
-            </li>
-            <li>
-                Existe a possibilidade de não possuirmos dados sobre a pergunta feita. Nesta situação a
-                ferramenta irá responder que “Não conseguimos entender sua pergunta”
-            </li>
-            <li>
-                Caso deseje saber mais sobre o Educadex, e a abrangência dos dados que podem ser consultados,
-                clica no botão “acessar a wiki”. Do contrário, sinta-se livre para começar a pesquisar clicando
-                no botão “continuar”
-            </li>
-        </ul>
-
         <a class="btn btn-primary" href="{{ route('home') }}">Continuar</a>
         <a class="btn btn-outline-primary" href="https://github.com/emiliopedrollo/educadex/wiki"
             target="_blank">Ir para Wiki</a>
