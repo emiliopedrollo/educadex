@@ -102,7 +102,7 @@ class Level extends Branch
                             foreach ($level as $sub_level) {
                                 $query->orWhere($sub_level,'=',$expected);
                             }
-                        },null,null,$boolean);
+                        },null,null,$boolean ?? 'and');
                     }
                 }
             });
